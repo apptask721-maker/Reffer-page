@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+            color: #000000;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        .balance-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .action-btn:hover {
+            background: #f8f9fa;
+            border-color: #007aff;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .action-btn .icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .action-btn .title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
+        .action-btn .subtitle {
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .referral-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .referral-link-box {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .copy-btn {
+            width: 100%;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #0056cc;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: #0056cc;
+        }
+
+        .submit-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-box .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
+        .stat-box .label {
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .rules-list {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .rule-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .rule-item:last-child {
+            border-bottom: none;
+        }
+
+        .rule-item .text {
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .rule-item .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #007aff;
+        }
+
+        .message-box {
+            background: #e8f4ff;
+            border: 1px solid #b6d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #0066cc;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666666;
+        }
+
+        .error {
+            background: #ffe8e8;
+            border: 1px solid #ffb6b6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #cc0000;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #e8ffe8;
+            border: 1px solid #b6ffb6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #00cc00;
+            font-size: 14px;
+        }
+
+        .pin-input {
+            letter-spacing: 10px;
+            font-size: 24px;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e5e5;
+            color: #999999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="loading">Loading...</div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Withdraw Funds</h2>
+                <button class="close-btn" onclick="closeModal('withdrawModal')">×</button>
+            </div>
+            <div class="modal-body" id="withdrawModalBody">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Stats Modal -->
+    <div class="modal" id="referralModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Referral Statistics</h2>
+                <button class="close-btn" onclick="closeModal('referralModal')">×</button>
+            </div>
+            <div class="modal-body" id="referralModalBody">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN Modal -->
+    <div class="modal" id="pinModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="pinModalTitle">Set PIN</h2>
+                <button class="close-btn" onclick="closeModal('pinModal')">×</button>
+            </div>
+            <div class="modal-body" id="pinModalBody">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= TELEGRAM URL PARSER =================
+        function parseTelegramUrl() {
+            const url = window.location.href;
+            let telegramData = null;
+            let userId = null;
+            
+            try {
+                // Try to extract from URL parameters
+                const urlObj = new URL(url);
+                
+                // Check for user parameter in search params
+                const searchUser = urlObj.searchParams.get('user');
+                if (searchUser) {
+                    userId = searchUser;
+                }
+                
+                // Also check hash for Telegram Web App data
+                if (url.includes('#tgWebAppData')) {
+                    const hashIndex = url.indexOf('#');
+                    if (hashIndex > -1) {
+                        const hash = url.substring(hashIndex + 1);
+                        const hashParams = new URLSearchParams(hash);
+                        const tgWebAppData = hashParams.get('tgWebAppData');
+                        
+                        if (tgWebAppData) {
+                            const webAppParams = new URLSearchParams(tgWebAppData);
+                            const userParam = webAppParams.get('user');
+                            
+                            if (userParam) {
+                                try {
+                                    telegramData = JSON.parse(decodeURIComponent(userParam));
+                                    if (telegramData.id) {
+                                        userId = telegramData.id;
+                                    }
+                                } catch (e) {
+                                    console.log("Could not parse Telegram data:", e);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Fallback: try to find user ID in URL
+                if (!userId) {
+                    const userMatch = url.match(/user=(\d+)/);
+                    if (userMatch) {
+                        userId = userMatch[1];
+                    }
+                }
+                
+            } catch (error) {
+                console.error("Error parsing URL:", error);
+            }
+            
+            return {
+                userId: userId,
+                telegramData: telegramData,
+                isTelegramUrl: !!userId
+            };
+        }
+
+        // ================= SYSTEM INITIALIZATION =================
+        document.addEventListener('DOMContentLoaded', function() {
+            const { userId, telegramData, isTelegramUrl } = parseTelegramUrl();
+            
+            // Check if we need to redirect
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get('page');
+            const api = urlParams.get('api');
+            
+            // If Telegram user and no specific page, show dashboard
+            if (isTelegramUrl && !page && !api) {
+                // Store user data
+                if (userId) {
+                    sessionStorage.setItem('telegramUserId', userId);
+                    if (telegramData) {
+                        sessionStorage.setItem('telegramUserData', JSON.stringify(telegramData));
+                    }
+                }
+                // Show dashboard
+                initializeSystem(userId, telegramData);
+                return;
+            }
+            
+            // If API call, handle it
+            if (api) {
+                handleApiMode();
+                return;
+            }
+            
+            // Otherwise initialize normally
+            initializeSystem(userId, telegramData);
+        });
+
+        // ================= MAIN SYSTEM =================
+        function initializeSystem(telegramUserId, telegramData) {
+            // Default settings
+            const DEFAULT_ADMIN_PASSWORD = "02092929";
+            
+            // Initialize storage
+            let users = JSON.parse(localStorage.getItem("users") || "{}");
+            let settings = JSON.parse(localStorage.getItem("settings") || JSON.stringify({
+                perRefer: 5,
+                minRefer: 3,
+                minWithdraw: 20,
+                botUser: "YourBotUsername",
+                appName: "Referral System"
+            }));
+            
+            let withdrawals = JSON.parse(localStorage.getItem("withdrawals") || "[]");
+            let adminPassword = localStorage.getItem("adminPassword") || DEFAULT_ADMIN_PASSWORD;
+            
+            // Get current user ID
+            function getCurrentUserId() {
+                return telegramUserId || 
+                       sessionStorage.getItem('telegramUserId') || 
+                       new URLSearchParams(window.location.search).get('uid');
+            }
+            
+            const currentUserId = getCurrentUserId();
+            
+            if (!currentUserId) {
+                showTelegramOnlyWarning();
+                return;
+            }
+            
+            // Create or update user
+            function makeUser(id, telegramUserData = null) {
+                if (!users[id]) {
+                    users[id] = {
+                        balance: 0,
+                        refers: 0,
+                        upi: "",
+                        withdrawHistory: [],
+                        pin: null,
+                        banned: false,
+                        joined: new Date().toISOString(),
+                        chatId: id,
+                        telegramData: telegramUserData || {},
+                        lastWithdrawAttempt: null
+                    };
+                    saveUsers();
+                    return true;
+                } else if (telegramUserData) {
+                    users[id].telegramData = { ...users[id].telegramData, ...telegramUserData };
+                    users[id].lastSeen = new Date().toISOString();
+                    saveUsers();
+                }
+                return false;
+            }
+            
+            // Save functions
+            function saveUsers() { localStorage.setItem("users", JSON.stringify(users)); }
+            function saveSettings() { localStorage.setItem("settings", JSON.stringify(settings)); }
+            function saveWithdrawals() { localStorage.setItem("withdrawals", JSON.stringify(withdrawals)); }
+            
+            // Create user
+            makeUser(currentUserId, telegramData);
+            const currentUser = users[currentUserId];
+            
+            // Render dashboard
+            renderDashboard();
+            
+            // ================= RENDER FUNCTIONS =================
+            function renderDashboard() {
+                document.getElementById('app').innerHTML = `
+                    <div class="header">
+                        <h1>${settings.appName}</h1>
+                        <p>Welcome, ${currentUser.telegramData?.first_name || 'User'}</p>
+                    </div>
+                    
+                    <div class="balance-box">
+                        <div class="balance-label">Your Balance</div>
+                        <div class="balance-amount">$${currentUser.balance.toFixed(2)}</div>
+                    </div>
+                    
+                    <div class="button-grid">
+                        <div class="action-btn" onclick="showReferralStats()">
+                            <div class="icon">📊</div>
+                            <div class="title">Referral Status</div>
+                            <div class="subtitle">${currentUser.refers} referrals</div>
+                        </div>
+                        
+                        <div class="action-btn" onclick="showWithdraw()">
+                            <div class="icon">💰</div>
+                            <div class="title">Withdraw</div>
+                            <div class="subtitle">Min: $${settings.minWithdraw}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="referral-section">
+                        <div class="section-title">
+                            <span>🔗</span> Your Referral Link
+                        </div>
+                        <div class="referral-link-box" id="referralLink">
+                            https://t.me/${settings.botUser}?start=${currentUserId}
+                        </div>
+                        <button class="copy-btn" onclick="copyReferralLink()">Copy Link</button>
+                        
+                        <div class="message-box">
+                            Share this link with friends. Earn $${settings.perRefer} for each successful referral!
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        User ID: ${currentUserId}<br>
+                        ${new Date().toLocaleTimeString()}
+                    </div>
+                `;
+            }
+            
+            function showTelegramOnlyWarning() {
+                document.getElementById('app').innerHTML = `
+                    <div class="header">
+                        <h1>Telegram Required</h1>
+                        <p>Please open this link in Telegram</p>
+                    </div>
+                    
+                    <div class="message-box" style="text-align: center;">
+                        This system works only within the Telegram app.<br><br>
+                        Open in Telegram to continue.
+                    </div>
+                `;
+            }
+            
+            // ================= MODAL FUNCTIONS =================
+            window.showWithdraw = function() {
+                // Check if user has PIN set
+                if (!currentUser.pin) {
+                    showSetPinModal();
+                    return;
+                }
+                
+                // Check if user can withdraw
+                if (currentUser.banned) {
+                    showMessage("Your account is banned!", "error");
+                    return;
+                }
+                
+                if (currentUser.refers < settings.minRefer) {
+                    showMessage(`You need ${settings.minRefer} referrals to withdraw. Current: ${currentUser.refers}`, "error");
+                    return;
+                }
+                
+                if (currentUser.balance < settings.minWithdraw) {
+                    showMessage(`Minimum withdrawal: $${settings.minWithdraw}. Your balance: $${currentUser.balance.toFixed(2)}`, "error");
+                    return;
+                }
+                
+                // Show PIN verification first
+                showVerifyPinModal();
+            };
+            
+            window.showReferralStats = function() {
+                document.getElementById('referralModalBody').innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="value">${currentUser.refers}</div>
+                            <div class="label">Total Referrals</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value">$${(currentUser.refers * settings.perRefer).toFixed(2)}</div>
+                            <div class="label">Earned from Referrals</div>
+                        </div>
+                    </div>
+                    
+                    <div class="rules-list">
+                        <div class="rule-item">
+                            <div class="text">Per Referral Bonus</div>
+                            <div class="value">$${settings.perRefer}</div>
+                        </div>
+                        <div class="rule-item">
+                            <div class="text">Minimum Referrals Required</div>
+                            <div class="value">${settings.minRefer}</div>
+                        </div>
+                        <div class="rule-item">
+                            <div class="text">Minimum Withdrawal</div>
+                            <div class="value">$${settings.minWithdraw}</div>
+                        </div>
+                    </div>
+                    
+                    ${currentUser.refers >= settings.minRefer ? 
+                        '<div class="success">✅ You can withdraw funds!</div>' : 
+                        `<div class="error">❌ Need ${settings.minRefer - currentUser.refers} more referrals to withdraw</div>`}
+                `;
+                openModal('referralModal');
+            };
+            
+            function showSetPinModal() {
+                document.getElementById('pinModalTitle').textContent = "Set PIN";
+                document.getElementById('pinModalBody').innerHTML = `
+                    <div class="input-group">
+                        <label>Enter 4-digit PIN</label>
+                        <input type="password" id="pinInput" maxlength="4" pattern="\d{4}" class="pin-input" 
+                               placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+                    <div class="input-group">
+                        <label>Confirm PIN</label>
+                        <input type="password" id="confirmPinInput" maxlength="4" pattern="\d{4}" class="pin-input" 
+                               placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+                    <div class="message-box">
+                        ⚠️ This PIN will be required for all withdrawals.<br>
+                        Remember it carefully!
+                    </div>
+                    <button class="submit-btn" onclick="savePin()">Set PIN</button>
+                `;
+                openModal('pinModal');
+            }
+            
+            function showVerifyPinModal() {
+                document.getElementById('pinModalTitle').textContent = "Enter PIN";
+                document.getElementById('pinModalBody').innerHTML = `
+                    <div class="input-group">
+                        <label>Enter your 4-digit PIN to continue</label>
+                        <input type="password" id="pinInput" maxlength="4" pattern="\d{4}" class="pin-input" 
+                               placeholder="0000" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    </div>
+                    <div class="message-box">
+                        PIN is required for withdrawal security
+                    </div>
+                    <button class="submit-btn" onclick="verifyPin()">Verify PIN</button>
+                `;
+                openModal('pinModal');
+            }
+            
+            function showWithdrawModal() {
+                const lastAttempt = currentUser.lastWithdrawAttempt;
+                const now = new Date();
+                let timeLeft = 0;
+                
+                if (lastAttempt) {
+                    const lastTime = new Date(lastAttempt);
+                    const diffMinutes = (now - lastTime) / (1000 * 60);
+                    timeLeft = Math.max(0, 5 - Math.floor(diffMinutes));
+                }
+                
+                document.getElementById('withdrawModalBody').innerHTML = `
+                    ${timeLeft > 0 ? `
+                        <div class="error">
+                            ⚠️ Please wait ${timeLeft} minute(s) before next withdrawal attempt
+                        </div>
+                    ` : ''}
+                    
+                    <div class="input-group">
+                        <label>UPI ID / Payment Address</label>
+                        <input type="text" id="upiInput" placeholder="yourname@upi" value="${currentUser.upi || ''}">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Withdrawal Amount ($)</label>
+                        <input type="number" id="amountInput" 
+                               min="${settings.minWithdraw}" 
+                               max="${currentUser.balance}" 
+                               step="0.01"
+                               placeholder="Enter amount">
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                            Available: $${currentUser.balance.toFixed(2)} | Min: $${settings.minWithdraw}
+                        </div>
+                    </div>
+                    
+                    ${timeLeft === 0 ? `
+                        <button class="submit-btn" onclick="submitWithdrawal()" id="submitWithdrawBtn">
+                            Request Withdrawal
+                        </button>
+                    ` : `
+                        <button class="submit-btn" disabled>
+                            Try again in ${timeLeft} minute(s)
+                        </button>
+                    `}
+                `;
+                
+                openModal('withdrawModal');
+            }
+            
+            // ================= PIN FUNCTIONS =================
+            window.savePin = function() {
+                const pin = document.getElementById('pinInput').value;
+                const confirmPin = document.getElementById('confirmPinInput').value;
+                
+                if (pin.length !== 4) {
+                    showMessage("PIN must be 4 digits", "error");
+                    return;
+                }
+                
+                if (pin !== confirmPin) {
+                    showMessage("PINs do not match", "error");
+                    return;
+                }
+                
+                currentUser.pin = pin;
+                saveUsers();
+                closeModal('pinModal');
+                showMessage("PIN set successfully!", "success");
+                
+                // After setting PIN, show withdraw modal
+                setTimeout(showWithdrawModal, 500);
+            };
+            
+            window.verifyPin = function() {
+                const enteredPin = document.getElementById('pinInput').value;
+                
+                if (enteredPin !== currentUser.pin) {
+                    showMessage("Incorrect PIN", "error");
+                    return;
+                }
+                
+                closeModal('pinModal');
+                
+                // Record PIN verification time
+                currentUser.lastPinVerify = new Date().toISOString();
+                saveUsers();
+                
+                // Show withdraw modal
+                showWithdrawModal();
+            };
+            
+            // ================= WITHDRAWAL FUNCTIONS =================
+            window.submitWithdrawal = function() {
+                const upi = document.getElementById('upiInput').value.trim();
+                const amount = parseFloat(document.getElementById('amountInput').value);
+                
+                // Validation
+                if (!upi) {
+                    showMessage("Please enter UPI ID", "error");
+                    return;
+                }
+                
+                if (!amount || amount < settings.minWithdraw) {
+                    showMessage(`Minimum withdrawal is $${settings.minWithdraw}`, "error");
+                    return;
+                }
+                
+                if (amount > currentUser.balance) {
+                    showMessage("Insufficient balance", "error");
+                    return;
+                }
+                
+                if (currentUser.refers < settings.minRefer) {
+                    showMessage(`Need ${settings.minRefer} referrals to withdraw`, "error");
+                    return;
+                }
+                
+                // Process withdrawal
+                currentUser.balance -= amount;
+                currentUser.upi = upi;
+                currentUser.lastWithdrawAttempt = new Date().toISOString();
+                
+                const withdrawal = {
+                    uid: currentUserId,
+                    upi: upi,
+                    amount: amount,
+                    date: new Date().toLocaleString(),
+                    status: 'Pending'
+                };
+                
+                if (!currentUser.withdrawHistory) {
+                    currentUser.withdrawHistory = [];
+                }
+                currentUser.withdrawHistory.push(withdrawal);
+                withdrawals.push(withdrawal);
+                
+                saveUsers();
+                saveWithdrawals();
+                
+                closeModal('withdrawModal');
+                showMessage(`Withdrawal request submitted for $${amount.toFixed(2)}`, "success");
+                
+                // Update dashboard
+                renderDashboard();
+            };
+            
+            // ================= UTILITY FUNCTIONS =================
+            window.copyReferralLink = function() {
+                const link = document.getElementById('referralLink').textContent;
+                navigator.clipboard.writeText(link).then(() => {
+                    showMessage("Referral link copied!", "success");
+                });
+            };
+            
+            window.openModal = function(modalId) {
+                document.getElementById(modalId).classList.add('active');
+            };
+            
+            window.closeModal = function(modalId) {
+                document.getElementById(modalId).classList.remove('active');
+            };
+            
+            function showMessage(message, type = "info") {
+                // Create message element
+                const messageEl = document.createElement('div');
+                messageEl.className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'message-box';
+                messageEl.textContent = message;
+                messageEl.style.marginTop = '20px';
+                messageEl.style.marginBottom = '20px';
+                
+                // Add to app container
+                const app = document.getElementById('app');
+                app.insertBefore(messageEl, app.firstChild);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    if (messageEl.parentNode) {
+                        messageEl.parentNode.removeChild(messageEl);
+                    }
+                }, 3000);
+            }
+            
+            // Handle clicks outside modal to close
+            document.addEventListener('click', function(event) {
+                const modals = document.querySelectorAll('.modal.active');
+                modals.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Handle API mode
+            function handleApiMode() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const api = urlParams.get('api');
+                const uid = urlParams.get('uid') || getCurrentUserId();
+                const ref = urlParams.get('ref');
+                
+                let response = {};
+                
+                try {
+                    switch (api) {
+                        case "directref":
+                            if (uid && ref && uid !== ref) {
+                                makeUser(uid);
+                                makeUser(ref);
+                                
+                                if (!users[ref].banned) {
+                                    const referralKey = `${uid}_${ref}`;
+                                    if (!localStorage.getItem(referralKey)) {
+                                        users[ref].refers += 1;
+                                        users[ref].balance += settings.perRefer;
+                                        localStorage.setItem(referralKey, "true");
+                                        saveUsers();
+                                        
+                                        response = {
+                                            status: "success",
+                                            message: "Referral added",
+                                            ref_user: ref,
+                                            total_refers: users[ref].refers,
+                                            balance: users[ref].balance,
+                                            time: new Date().toLocaleTimeString()
+                                        };
+                                    } else {
+                                        response = {
+                                            status: "error",
+                                            message: "Referral already processed"
+                                        };
+                                    }
+                                } else {
+                                    response = {
+                                        status: "error",
+                                        message: "Referrer is banned"
+                                    };
+                                }
+                            }
+                            break;
+                            
+                        case "user":
+                            if (uid) {
+                                makeUser(uid);
+                                
+                                response = {
+                                    status: "ok",
+                                    uid: uid,
+                                    balance: users[uid].balance,
+                                    refers: users[uid].refers,
+                                    time: new Date().toLocaleTimeString()
+                                };
+                            }
+                            break;
+                            
+                        default:
+                            response = { status: "error", message: "Invalid API" };
+                    }
+                } catch (error) {
+                    response = { status: "error", message: error.message };
+                }
+                
+                // Show API response
+                document.getElementById('app').innerHTML = `
+                    <div class="header">
+                        <h1>API Response</h1>
+                        <p>${new Date().toLocaleTimeString()}</p>
+                    </div>
+                    
+                    <div class="referral-section">
+                        <pre style="font-family: monospace; white-space: pre-wrap;">${JSON.stringify(response, null, 2)}</pre>
+                    </div>
+                `;
+            }
+            
+            // Make functions available globally
+            window.showWithdraw = showWithdraw;
+            window.showReferralStats = showReferralStats;
+            window.copyReferralLink = copyReferralLink;
+            window.savePin = savePin;
+            window.verifyPin = verifyPin;
+            window.submitWithdrawal = submitWithdrawal;
+            window.openModal = openModal;
+            window.closeModal = closeModal;
+        }
+    </script>
+</body>
+  </html>
