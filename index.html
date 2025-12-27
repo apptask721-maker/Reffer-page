@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Referral System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #2f855a 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        .referral-link {
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            background: #edf2f7;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #edf2f7;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .user-item.banned {
+            background: #fed7d7;
+        }
+
+        .withdrawal-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .withdrawal-item {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-pending {
+            background: #fefcbf;
+            color: #744210;
+        }
+
+        .status-paid {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-rejected {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #48bb78;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .notification-badge {
+            background: #e53e3e;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .telegram-only {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+            background: white;
+            border-radius: 15px;
+            margin-top: 50px;
+        }
+
+        .telegram-only h2 {
+            color: #0088cc;
+            margin-bottom: 20px;
+        }
+
+        .telegram-icon {
+            font-size: 4rem;
+            color: #0088cc;
+            margin-bottom: 20px;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 100px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="loader"></div>
+        <p style="text-align: center; color: white;">Loading Telegram Referral System...</p>
+    </div>
+
+    <script>
+        // ================= TELEGRAM URL PARSER =================
+        function parseTelegramUrl() {
+            const url = window.location.href;
+            console.log("Full URL:", url);
+            
+            let telegramData = null;
+            let userId = null;
+            
+            try {
+                // Try to extract from hash (#) section first
+                const hashIndex = url.indexOf('#');
+                if (hashIndex > -1) {
+                    const hash = url.substring(hashIndex + 1);
+                    const hashParams = new URLSearchParams(hash);
+                    
+                    // Try to get tgWebAppData
+                    const tgWebAppData = hashParams.get('tgWebAppData');
+                    if (tgWebAppData) {
+                        const webAppParams = new URLSearchParams(tgWebAppData);
+                        const userParam = webAppParams.get('user');
+                        
+                        if (userParam) {
+                            try {
+                                // Decode and parse user JSON
+                                const decodedUser = decodeURIComponent(userParam);
+                                telegramData = JSON.parse(decodedUser);
+                                userId = telegramData.id;
+                                console.log("Extracted from tgWebAppData:", telegramData);
+                            } catch (e) {
+                                console.log("Could not parse tgWebAppData user:", e);
+                            }
+                        }
+                    }
+                }
+                
+                // Try to get user parameter from URL search params
+                if (!userId) {
+                    const urlObj = new URL(url);
+                    
+                    // Try from search params
+                    const searchUser = urlObj.searchParams.get('user');
+                    if (searchUser) {
+                        userId = searchUser;
+                        console.log("Extracted user from search params:", userId);
+                    }
+                    
+                    // Try from hash params if not found
+                    if (!userId && hashIndex > -1) {
+                        const hash = url.substring(hashIndex + 1);
+                        const hashParams = new URLSearchParams(hash);
+                        const hashUser = hashParams.get('user');
+                        if (hashUser) {
+                            userId = hashUser;
+                            console.log("Extracted user from hash params:", userId);
+                        }
+                    }
+                }
+                
+                // Also try to parse the entire URL for user ID patterns
+                if (!userId) {
+                    const userMatch = url.match(/user=(\d+)/);
+                    if (userMatch) {
+                        userId = userMatch[1];
+                        console.log("Extracted user from regex match:", userId);
+                    }
+                }
+                
+            } catch (error) {
+                console.error("Error parsing URL:", error);
+            }
+            
+            return {
+                userId: userId,
+                telegramData: telegramData,
+                isTelegramUrl: !!userId || !!telegramData
+            };
+        }
+
+        // ================= MAIN INITIALIZATION =================
+        document.addEventListener('DOMContentLoaded', function() {
+            const { userId, telegramData, isTelegramUrl } = parseTelegramUrl();
+            console.log("Parsed result:", { userId, telegramData, isTelegramUrl });
+            
+            // Check for API mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const api = urlParams.get('api');
+            const page = urlParams.get('page');
+            
+            // If it's a Telegram URL and no specific page, show user dashboard
+            if (isTelegramUrl && !page && !api) {
+                console.log("Telegram user detected, redirecting to dashboard...");
+                // Store user data temporarily
+                if (userId) {
+                    sessionStorage.setItem('telegramUserId', userId);
+                    if (telegramData) {
+                        sessionStorage.setItem('telegramUserData', JSON.stringify(telegramData));
+                    }
+                }
+                // Redirect to user dashboard
+                window.location.href = window.location.pathname + '?page=user';
+                return;
+            }
+            
+            // Initialize system
+            initializeSystem(userId, telegramData, api, page);
+        });
+
+        // ================= SYSTEM INITIALIZATION =================
+        function initializeSystem(telegramUserId, telegramData, api, page) {
+            console.log("Initializing system with:", { telegramUserId, telegramData, api, page });
+            
+            // Default admin password
+            const DEFAULT_ADMIN_PASSWORD = "02092929";
+
+            // Initialize Local Storage
+            let users = JSON.parse(localStorage.getItem("users") || "{}");
+            let settings = JSON.parse(localStorage.getItem("settings") || JSON.stringify({
+                perRefer: 5,
+                minRefer: 3,
+                minWithdraw: 20,
+                botUser: "YourBotUsername",
+                botToken: "",
+                adminChatId: "",
+                appName: "Telegram Referral System",
+                withdrawalEnabled: true,
+                alertsEnabled: true,
+                userAlerts: true,
+                adminAlerts: true,
+                referralUserAlert: true,
+                referralAdminAlert: true,
+                withdrawUserAlert: true,
+                withdrawAdminAlert: true,
+                telegramOnly: true
+            }));
+
+            let withdrawals = JSON.parse(localStorage.getItem("withdrawals") || "[]");
+            let adminPassword = localStorage.getItem("adminPassword") || DEFAULT_ADMIN_PASSWORD;
+            let isAdminAuthenticated = sessionStorage.getItem("adminAuthenticated") === "true";
+
+            // Save functions
+            function saveUsers() { localStorage.setItem("users", JSON.stringify(users)); }
+            function saveSettings() { localStorage.setItem("settings", JSON.stringify(settings)); }
+            function saveWithdrawals() { localStorage.setItem("withdrawals", JSON.stringify(withdrawals)); }
+            function saveAdminPassword() { localStorage.setItem("adminPassword", adminPassword); }
+
+            // Create or update user with Telegram data
+            function makeUser(id, telegramUserData = null) {
+                if (!users[id]) {
+                    users[id] = {
+                        balance: 0,
+                        refers: 0,
+                        upi: "",
+                        withdrawHistory: [],
+                        pin: null,
+                        banned: false,
+                        joined: new Date().toISOString(),
+                        chatId: id,
+                        telegramData: telegramUserData || {},
+                        lastSeen: new Date().toISOString()
+                    };
+                    saveUsers();
+                    console.log("Created new user:", id);
+                    return true;
+                } else {
+                    // Update existing user with Telegram data
+                    if (telegramUserData) {
+                        users[id].telegramData = { ...users[id].telegramData, ...telegramUserData };
+                        users[id].chatId = id;
+                        users[id].lastSeen = new Date().toISOString();
+                        saveUsers();
+                        console.log("Updated user data:", id);
+                    }
+                    return false;
+                }
+            }
+
+            // Get the current user ID (priority: Telegram > sessionStorage > URL params)
+            function getCurrentUserId() {
+                // Check URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlUid = urlParams.get('uid');
+                
+                // Priority: Telegram ID > Session Storage > URL parameter
+                return telegramUserId || 
+                       sessionStorage.getItem('telegramUserId') || 
+                       urlUid;
+            }
+
+            // Telegram Bot Functions
+            async function sendTelegramMessage(chatId, message) {
+                if (!settings.botToken || !settings.alertsEnabled) return false;
+                
+                try {
+                    const response = await fetch(`https://api.telegram.org/bot${settings.botToken}/sendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: message,
+                            parse_mode: 'HTML'
+                        })
+                    });
+                    
+                    return response.ok;
+                } catch (error) {
+                    console.error('Telegram send error:', error);
+                    return false;
+                }
+            }
+
+            // API Mode Handler
+            if (api) {
+                handleApiMode();
+                return;
+            }
+            
+            // Admin Panel
+            if (page === "admin") {
+                if (!isAdminAuthenticated) {
+                    renderAdminLogin();
+                } else {
+                    renderAdminPanel();
+                }
+                return;
+            }
+            
+            // User Dashboard
+            if (page === "user") {
+                const currentUserId = getCurrentUserId();
+                if (!currentUserId) {
+                    showTelegramOnlyWarning();
+                    return;
+                }
+                
+                // Get stored Telegram data
+                let storedTelegramData = null;
+                try {
+                    const storedData = sessionStorage.getItem('telegramUserData');
+                    if (storedData) {
+                        storedTelegramData = JSON.parse(storedData);
+                    }
+                } catch (e) {
+                    console.log("Could not parse stored Telegram data:", e);
+                }
+                
+                makeUser(currentUserId, storedTelegramData || telegramData);
+                renderUserDashboard(currentUserId);
+                return;
+            }
+            
+            // Default Landing Page
+            renderLandingPage();
+
+            // ================= RENDER FUNCTIONS =================
+            function showTelegramOnlyWarning() {
+                document.getElementById('app').innerHTML = `
+                    <div class="telegram-only">
+                        <div class="telegram-icon">📱</div>
+                        <h2>Open in Telegram</h2>
+                        <p>This referral system works only within the Telegram app.</p>
+                        <p>Please open this link in Telegram to continue:</p>
+                        <div class="referral-link">
+                            https://t.me/${settings.botUser || 'your_bot_username'}
+                        </div>
+                        <p style="margin-top: 20px; color: #666;">
+                            If you're already in Telegram, make sure you opened this link from a bot.
+                        </p>
+                        <button class="btn" onclick="location.reload()" style="margin-top: 20px;">Refresh Page</button>
+                    </div>
+                `;
+            }
+
+            function renderAdminLogin() {
+                document.getElementById('app').innerHTML = `
+                    <div class="login-container">
+                        <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Admin Login</h2>
+                        <div class="input-group">
+                            <label>Admin Password</label>
+                            <input type="password" id="adminPass" placeholder="Enter password">
+                        </div>
+                        <button class="btn" onclick="adminLogin()" style="width: 100%;">Login</button>
+                        <p style="text-align: center; margin-top: 20px; color: #666;">
+                            Default password: ${DEFAULT_ADMIN_PASSWORD}
+                        </p>
+                    </div>
+                `;
+            }
+
+            function adminLogin() {
+                const password = document.getElementById('adminPass').value;
+                if (password === adminPassword) {
+                    sessionStorage.setItem('adminAuthenticated', 'true');
+                    location.href = '?page=admin';
+                } else {
+                    alert('Incorrect password!');
+                }
+            }
+
+            function adminLogout() {
+                sessionStorage.removeItem('adminAuthenticated');
+                location.href = '?page=admin';
+            }
+
+            function renderAdminPanel() {
+                const app = document.getElementById('app');
+                
+                app.innerHTML = `
+                    <div class="header">
+                        <h1>Admin Control Panel</h1>
+                        <p>Manage your referral system</p>
+                        <button class="btn btn-danger" onclick="adminLogout()" style="margin-top: 10px;">Logout</button>
+                    </div>
+                    
+                    <div class="nav-tabs">
+                        <button class="tab-btn active" onclick="switchTab('settings')">Settings</button>
+                        <button class="tab-btn" onclick="switchTab('notifications')">
+                            Notifications
+                            ${getPendingWithdrawalsCount() > 0 ? `<span class="notification-badge">${getPendingWithdrawalsCount()}</span>` : ''}
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('users')">Users</button>
+                        <button class="tab-btn" onclick="switchTab('withdrawals')">Withdrawals</button>
+                        <button class="tab-btn" onclick="switchTab('security')">Security</button>
+                    </div>
+                    
+                    <div id="settings-tab" class="tab-content active">
+                        <div class="card">
+                            <h2>System Settings</h2>
+                            <div class="input-group">
+                                <label>App Name</label>
+                                <input type="text" id="appName" value="${settings.appName}">
+                            </div>
+                            <div class="stats-grid">
+                                <div class="input-group">
+                                    <label>Bonus per Referral ($)</label>
+                                    <input type="number" id="perRefer" value="${settings.perRefer}" step="0.01">
+                                </div>
+                                <div class="input-group">
+                                    <label>Minimum Referrals Required</label>
+                                    <input type="number" id="minRefer" value="${settings.minRefer}">
+                                </div>
+                                <div class="input-group">
+                                    <label>Minimum Withdrawal Amount ($)</label>
+                                    <input type="number" id="minWithdraw" value="${settings.minWithdraw}" step="0.01">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Telegram Bot Username (without @)</label>
+                                <input type="text" id="botUser" value="${settings.botUser}">
+                            </div>
+                            <div class="input-group">
+                                <label>Telegram Bot Token</label>
+                                <input type="password" id="botToken" value="${settings.botToken}">
+                                <small style="color: #666;">Get from @BotFather on Telegram</small>
+                            </div>
+                            <div class="input-group">
+                                <label>Admin Chat ID</label>
+                                <input type="text" id="adminChatId" value="${settings.adminChatId}">
+                                <small style="color: #666;">Get your chat ID from @userinfobot</small>
+                            </div>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="withdrawalEnabled" ${settings.withdrawalEnabled ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    Enable Withdrawals
+                                </label>
+                            </div>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="alertsEnabled" ${settings.alertsEnabled ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    Enable All Notifications
+                                </label>
+                            </div>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="telegramOnly" ${settings.telegramOnly ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    Telegram Only (Secure Mode)
+                                </label>
+                                <small style="color: #666;">If enabled, users can only access via Telegram</small>
+                            </div>
+                            <button class="btn" onclick="saveSettingsAdmin()">Save Settings</button>
+                            <button class="btn btn-success" onclick="testBotConnection()">Test Bot Connection</button>
+                        </div>
+                    </div>
+                    
+                    <div id="notifications-tab" class="tab-content">
+                        <div class="card">
+                            <h2>Notification Settings</h2>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="userAlerts" ${settings.userAlerts ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    Send Alerts to Users
+                                </label>
+                            </div>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="adminAlerts" ${settings.adminAlerts ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    Send Alerts to Admin
+                                </label>
+                            </div>
+                            
+                            <h3 style="margin-top: 30px;">Specific Alerts</h3>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="referralUserAlert" ${settings.referralUserAlert ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    New Referral Alert to User
+                                </label>
+                            </div>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="referralAdminAlert" ${settings.referralAdminAlert ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    New Referral Alert to Admin
+                                </label>
+                            </div>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="withdrawUserAlert" ${settings.withdrawUserAlert ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    Withdrawal Alert to User
+                                </label>
+                            </div>
+                            <div class="input-group">
+                                <label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="withdrawAdminAlert" ${settings.withdrawAdminAlert ? 'checked' : ''}>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                    Withdrawal Alert to Admin
+                                </label>
+                            </div>
+                            
+                            <button class="btn" onclick="saveNotificationSettings()">Save Notification Settings</button>
+                            
+                            <h3 style="margin-top: 30px;">Send Custom Message</h3>
+                            <div class="input-group">
+                                <label>Select User</label>
+                                <select id="customMsgUser">
+                                    <option value="">All Users</option>
+                                    ${Object.keys(users).map(id => `
+                                        <option value="${id}">${id} - ${users[id].telegramData?.first_name || 'Unknown'}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Message</label>
+                                <textarea id="customMessage" placeholder="Enter your message" rows="4" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;"></textarea>
+                            </div>
+                            <button class="btn" onclick="sendCustomMessage()">Send Message</button>
+                        </div>
+                    </div>
+                    
+                    <div id="users-tab" class="tab-content">
+                        <div class="card">
+                            <h2>User Management</h2>
+                            <div class="admin-section">
+                                <h3>User Actions</h3>
+                                <input type="text" id="banUID" placeholder="Enter User ID" style="margin-right: 10px;">
+                                <button class="btn btn-danger" onclick="banUser()">Ban User</button>
+                                <button class="btn btn-success" onclick="unbanUser()">Unban User</button>
+                                <button class="btn" onclick="addBalance()">Add Balance</button>
+                            </div>
+                            <div class="user-list" id="userList"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="withdrawals-tab" class="tab-content">
+                        <div class="card">
+                            <h2>Withdrawal Requests
+                                ${getPendingWithdrawalsCount() > 0 ? 
+                                    `<span class="notification-badge">${getPendingWithdrawalsCount()} Pending</span>` : ''}
+                            </h2>
+                            <div class="withdrawal-list" id="withdrawalList"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="security-tab" class="tab-content">
+                        <div class="card">
+                            <h2>Security Settings</h2>
+                            <div class="input-group">
+                                <label>Change Admin Password</label>
+                                <input type="password" id="newPassword" placeholder="New password">
+                                <input type="password" id="confirmPassword" placeholder="Confirm password" style="margin-top: 10px;">
+                            </div>
+                            <button class="btn" onclick="changeAdminPassword()">Change Password</button>
+                            
+                            <h3 style="margin-top: 30px;">System Data</h3>
+                            <button class="btn" onclick="exportData()">Export All Data</button>
+                            <button class="btn btn-warning" onclick="importData()">Import Data</button>
+                            <button class="btn btn-danger" onclick="resetSystem()">Reset System</button>
+                        </div>
+                    </div>
+                `;
+                
+                loadUsersList();
+                loadWithdrawals();
+            }
+
+            function renderUserDashboard(userId) {
+                const user = users[userId];
+                const userTelegram = user?.telegramData || {};
+                
+                document.getElementById('app').innerHTML = `
+                    <div class="header">
+                        <h1>Welcome, ${userTelegram.first_name || 'User'}!</h1>
+                        <p>${settings.appName} - Telegram Referral System</p>
+                        ${userTelegram.username ? `<p>@${userTelegram.username}</p>` : ''}
+                        <p style="font-size: 0.9em; opacity: 0.8;">User ID: ${userId}</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <h3>Your Balance</h3>
+                            <div class="value">$${(user?.balance || 0).toFixed(2)}</div>
+                        </div>
+                        <div class="stat-box">
+                            <h3>Total Referrals</h3>
+                            <div class="value">${user?.refers || 0}</div>
+                        </div>
+                        <div class="stat-box">
+                            <h3>Earned from Referrals</h3>
+                            <div class="value">$${((user?.refers || 0) * settings.perRefer).toFixed(2)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2>Your Referral Link</h2>
+                        <div class="referral-link" id="referralLink">
+                            https://t.me/${settings.botUser}?start=${userId}
+                        </div>
+                        <button class="btn" onclick="copyReferralLink()">Copy Link</button>
+                        <button class="btn btn-success" onclick="shareTelegram('${userId}')">Share on Telegram</button>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f0fff4; border-radius: 8px;">
+                            <h3>📢 Referral Rules</h3>
+                            <p>• Earn $${settings.perRefer} for each successful referral</p>
+                            <p>• Minimum ${settings.minRefer} referrals required for withdrawal</p>
+                            <p>• Minimum withdrawal amount: $${settings.minWithdraw}</p>
+                            ${user?.banned ? '<p style="color: #e53e3e; font-weight: bold;">⚠️ Your account is currently banned</p>' : ''}
+                            ${!settings.withdrawalEnabled ? '<p style="color: #ed8936; font-weight: bold;">⚠️ Withdrawals are temporarily disabled</p>' : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2>Withdraw Funds</h2>
+                        
+                        <div class="input-group">
+                            <label>UPI ID / Payment Address</label>
+                            <input type="text" id="upi" placeholder="yourname@upi" value="${user?.upi || ''}">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Withdrawal Amount ($)</label>
+                            <input type="number" id="amount" placeholder="Enter amount" min="1" max="${user?.balance || 0}" step="0.01">
+                            <small>Available: $${(user?.balance || 0).toFixed(2)}</small>
+                        </div>
+                        
+                        <div class="input-group" id="pinSection">
+                            ${!user?.pin ? 
+                                '<label>Set 4-digit PIN (for security)</label>' : 
+                                '<label>Enter your 4-digit PIN</label>'}
+                            <input type="password" id="pin" placeholder="****" maxlength="4" pattern="\d{4}">
+                        </div>
+                        
+                        <button class="btn" onclick="requestWithdrawal('${userId}')" ${!settings.withdrawalEnabled ? 'disabled style="opacity: 0.5;"' : ''}>
+                            ${!settings.withdrawalEnabled ? 'Withdrawals Disabled' : 'Request Withdrawal'}
+                        </button>
+                        
+                        ${user?.withdrawHistory?.length > 0 ? `
+                            <div style="margin-top: 30px;">
+                                <h3>Withdrawal History</h3>
+                                ${user.withdrawHistory.map(w => `
+                                    <div class="withdrawal-item">
+                                        <strong>$${w.amount}</strong> to ${w.upi}<br>
+                                        <small>${w.date} - 
+                                        <span class="status-badge ${w.status === 'Paid' ? 'status-paid' : w.status === 'Rejected' ? 'status-rejected' : 'status-pending'}">
+                                            ${w.status || 'Pending'}
+                                        </span>
+                                        ${w.transactionId ? `<br>TX ID: ${w.transactionId}` : ''}
+                                        </small>
+                                    </div>
+                                `).reverse().join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="card">
+                        <h2>Telegram Security</h2>
+                        <p style="color: #48bb78;">✅ You are securely logged in via Telegram</p>
+                        <p>User ID: <code>${userId}</code></p>
+                        ${userTelegram.first_name ? `<p>Name: ${userTelegram.first_name} ${userTelegram.last_name || ''}</p>` : ''}
+                        ${userTelegram.username ? `<p>Username: @${userTelegram.username}</p>` : ''}
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                            Your Telegram account ensures secure access to the referral system.
+                        </p>
+                    </div>
+                `;
+            }
+
+            function renderLandingPage() {
+                const currentUserId = getCurrentUserId();
+                const userTelegram = telegramData || {};
+                
+                document.getElementById('app').innerHTML = `
+                    <div class="header">
+                        <h1>${settings.appName}</h1>
+                        <p>Secure Telegram Referral System</p>
+                        ${currentUserId ? `<p>Welcome, ${userTelegram.first_name || 'User'}!</p>` : ''}
+                    </div>
+                    
+                    <div class="card">
+                        <h2>System Status</h2>
+                        <p>${currentUserId ? 'You are securely logged in via Telegram' : 'Please open in Telegram to continue'}</p>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <h3>Total Users</h3>
+                                <div class="value">${Object.keys(users).length}</div>
+                            </div>
+                            <div class="stat-box">
+                                <h3>Total Withdrawals</h3>
+                                <div class="value">${withdrawals.length}</div>
+                            </div>
+                            <div class="stat-box">
+                                <h3>Total Referrals</h3>
+                                <div class="value">${Object.values(users).reduce((sum, user) => sum + user.refers, 0)}</div>
+                            </div>
+                        </div>
+                        
+                        ${currentUserId ? `
+                            <div style="margin-top: 30px;">
+                                <h3>Quick Actions</h3>
+                                <button class="btn" onclick="location.href='?page=user'">My Dashboard</button>
+                                <button class="btn" onclick="location.href='?page=admin'">Admin Panel</button>
+                            </div>
+                        ` : `
+                            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 10px;">
+                                <h3>Open in Telegram</h3>
+                                <p>This system works only within the Telegram app for security.</p>
+                                <p>Please open this link in Telegram to continue.</p>
+                            </div>
+                        `}
+                        
+                        <div style="margin-top: 20px; padding: 20px; background: #f7fafc; border-radius: 8px;">
+                            <h4>For Telegram Bot Integration</h4>
+                            <p><strong>User Dashboard URL:</strong> <code>${window.location.origin}${window.location.pathname}?page=user</code></p>
+                            <p><strong>Add Referral API:</strong> <code>${window.location.origin}${window.location.pathname}?api=directref&uid=NEW_USER_ID&ref=REFERRER_ID</code></p>
+                            <p><strong>Get User Info:</strong> <code>${window.location.origin}${window.location.pathname}?api=user&uid=USER_ID</code></p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function handleApiMode() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const api = urlParams.get('api');
+                const uid = urlParams.get('uid') || getCurrentUserId();
+                const ref = urlParams.get('ref');
+                
+                let response = {};
+                
+                try {
+                    switch (api) {
+                        case "directref":
+                            if (uid && ref && uid !== ref) {
+                                makeUser(uid);
+                                makeUser(ref);
+                                
+                                if (!users[ref].banned) {
+                                    const referralKey = `${uid}_${ref}`;
+                                    if (!localStorage.getItem(referralKey)) {
+                                        users[ref].refers += 1;
+                                        users[ref].balance += settings.perRefer;
+                                        localStorage.setItem(referralKey, "true");
+                                        saveUsers();
+                                    }
+                                }
+                                
+                                response = {
+                                    status: "success",
+                                    message: "Referral processed",
+                                    ref_user: ref,
+                                    total_refers: users[ref].refers,
+                                    balance: users[ref].balance,
+                                    refer_link: `https://t.me/${settings.botUser}?start=${ref}`
+                                };
+                            }
+                            break;
+                            
+                        case "user":
+                            if (uid) {
+                                makeUser(uid);
+                                
+                                response = {
+                                    status: "ok",
+                                    uid: uid,
+                                    balance: users[uid].balance,
+                                    refers: users[uid].refers,
+                                    banned: users[uid].banned,
+                                    pin_set: users[uid].pin !== null,
+                                    canWithdraw: !users[uid].banned &&
+                                        users[uid].refers >= settings.minRefer &&
+                                        users[uid].balance >= settings.minWithdraw,
+                                    refer_link: `https://t.me/${settings.botUser}?start=${uid}`,
+                                    rules: settings
+                                };
+                            }
+                            break;
+                            
+                        default:
+                            response = { status: "error", message: "Invalid API endpoint" };
+                    }
+                } catch (error) {
+                    response = { status: "error", message: error.message };
+                }
+                
+                document.getElementById('app').innerHTML = `
+                    <div style="padding: 20px; background: white; min-height: 100vh;">
+                        <h2>API Response</h2>
+                        <pre style="background: #f5f5f5; padding: 20px; border-radius: 5px;">${JSON.stringify(response, null, 2)}</pre>
+                        <button onclick="history.back()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">Go Back</button>
+                    </div>
+                `;
+            }
+
+            // ================= HELPER FUNCTIONS =================
+            function getPendingWithdrawalsCount() {
+                return withdrawals.filter(w => w.status === 'Pending' || !w.status).length;
+            }
+
+            function switchTab(tabName) {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.textContent.toLowerCase().includes(tabName)) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            }
+
+            function copyReferralLink() {
+                const link = document.getElementById('referralLink').textContent;
+                navigator.clipboard.writeText(link).then(() => {
+                    alert('Referral link copied to clipboard!');
+                });
+            }
+
+            function shareTelegram(userId) {
+                const link = `https://t.me/${settings.botUser}?start=${userId}`;
+                const message = `Join ${settings.appName} using my referral link: ${link}`;
+                const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(message)}`;
+                window.open(telegramUrl, '_blank');
+            }
+
+            // ================= ADMIN FUNCTIONS =================
+            window.saveSettingsAdmin = function() {
+                settings.perRefer = parseFloat(document.getElementById('perRefer').value);
+                settings.minRefer = parseInt(document.getElementById('minRefer').value);
+                settings.minWithdraw = parseFloat(document.getElementById('minWithdraw').value);
+                settings.botUser = document.getElementById('botUser').value;
+                settings.botToken = document.getElementById('botToken').value;
+                settings.adminChatId = document.getElementById('adminChatId').value;
+                settings.appName = document.getElementById('appName').value;
+                settings.withdrawalEnabled = document.getElementById('withdrawalEnabled').checked;
+                settings.alertsEnabled = document.getElementById('alertsEnabled').checked;
+                settings.telegramOnly = document.getElementById('telegramOnly').checked;
+                
+                saveSettings();
+                alert('Settings saved successfully!');
+            }
+
+            window.saveNotificationSettings = function() {
+                settings.userAlerts = document.getElementById('userAlerts').checked;
+                settings.adminAlerts = document.getElementById('adminAlerts').checked;
+                settings.referralUserAlert = document.getElementById('referralUserAlert').checked;
+                settings.referralAdminAlert = document.getElementById('referralAdminAlert').checked;
+                settings.withdrawUserAlert = document.getElementById('withdrawUserAlert').checked;
+                settings.withdrawAdminAlert = document.getElementById('withdrawAdminAlert').checked;
+                
+                saveSettings();
+                alert('Notification settings saved!');
+            }
+
+            window.testBotConnection = async function() {
+                if (!settings.botToken) {
+                    alert('Please enter bot token first!');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`https://api.telegram.org/bot${settings.botToken}/getMe`);
+                    const data = await response.json();
+                    
+                    if (data.ok) {
+                        alert(`✅ Bot connected successfully!\n\nBot: @${data.result.username}\nName: ${data.result.first_name}`);
+                    } else {
+                        alert(`❌ Bot connection failed: ${data.description}`);
+                    }
+                } catch (error) {
+                    alert('❌ Error connecting to bot: ' + error.message);
+                }
+            }
+
+            function loadUsersList() {
+                const container = document.getElementById('userList');
+                const userList = Object.entries(users);
+                
+                if (userList.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; padding: 20px;">No users yet.</p>';
+                    return;
+                }
+                
+                container.innerHTML = userList.map(([id, user]) => `
+                    <div class="user-item ${user.banned ? 'banned' : ''}">
+                        <div>
+                            <strong>${id}</strong><br>
+                            <small>${user.telegramData?.first_name || ''} ${user.telegramData?.last_name || ''}</small><br>
+                            <small>Username: @${user.telegramData?.username || 'N/A'}</small><br>
+                            <small>Joined: ${new Date(user.joined).toLocaleDateString()}</small><br>
+                            <small>Balance: $${user.balance.toFixed(2)} | Refers: ${user.refers}</small>
+                        </div>
+                        <div>
+                            ${user.banned ? 
+                                '<span style="color: #e53e3e; font-weight: bold;">BANNED</span>' : 
+                                '<span style="color: #38a169; font-weight: bold;">ACTIVE</span>'}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function loadWithdrawals() {
+                const container = document.getElementById('withdrawalList');
+                
+                if (withdrawals.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; padding: 20px;">No withdrawal requests yet.</p>';
+                    return;
+                }
+                
+                container.innerHTML = withdrawals.map((w, index) => {
+                    const user = users[w.uid] || {};
+                    return `
+                    <div class="withdrawal-item">
+                        <strong>Request #${withdrawals.length - index}</strong>
+                        <span class="status-badge ${w.status === 'Paid' ? 'status-paid' : w.status === 'Rejected' ? 'status-rejected' : 'status-pending'}">
+                            ${w.status || 'Pending'}
+                        </span><br>
+                        <strong>User:</strong> ${w.uid}<br>
+                        <strong>Name:</strong> ${user.telegramData?.first_name || 'N/A'} ${user.telegramData?.last_name || ''}<br>
+                        <strong>Amount:</strong> $${w.amount.toFixed(2)}<br>
+                        <strong>UPI:</strong> ${w.upi}<br>
+                        <strong>Date:</strong> ${w.date}<br>
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-success" onclick="processWithdrawal(${withdrawals.length - index - 1}, 'Paid')">Mark as Paid</button>
+                            <button class="btn btn-danger" onclick="processWithdrawal(${withdrawals.length - index - 1}, 'Rejected')">Reject</button>
+                            <button class="btn" onclick="showTransactionIdInput(${withdrawals.length - index - 1})">Add TX ID</button>
+                        </div>
+                    </div>
+                `}).reverse().join('');
+            }
+
+            window.processWithdrawal = async function(index, status) {
+                const withdrawal = withdrawals[index];
+                const user = users[withdrawal.uid];
+                
+                if (status === 'Rejected') {
+                    // Refund balance if rejected
+                    user.balance += withdrawal.amount;
+                    saveUsers();
+                }
+                
+                withdrawal.status = status;
+                withdrawal.processedDate = new Date().toLocaleString();
+                
+                // Update user's withdrawal history
+                const userWithdrawal = user.withdrawHistory.find(w => 
+                    w.amount === withdrawal.amount && 
+                    w.upi === withdrawal.upi && 
+                    w.date === withdrawal.date
+                );
+                
+                if (userWithdrawal) {
+                    userWithdrawal.status = status;
+                    userWithdrawal.processedDate = withdrawal.processedDate;
+                }
+                
+                saveWithdrawals();
+                
+                alert(`Withdrawal ${status.toLowerCase()} successfully!`);
+                loadWithdrawals();
+            }
+
+            window.showTransactionIdInput = function(index) {
+                const txId = prompt('Enter Transaction ID:');
+                if (txId) {
+                    withdrawals[index].transactionId = txId;
+                    withdrawals[index].status = 'Paid';
+                    withdrawals[index].processedDate = new Date().toLocaleString();
+                    
+                    // Update user's withdrawal history
+                    const withdrawal = withdrawals[index];
+                    const user = users[withdrawal.uid];
+                    const userWithdrawal = user.withdrawHistory.find(w => 
+                        w.amount === withdrawal.amount && 
+                        w.upi === withdrawal.upi && 
+                        w.date === withdrawal.date
+                    );
+                    
+                    if (userWithdrawal) {
+                        userWithdrawal.transactionId = txId;
+                        userWithdrawal.status = 'Paid';
+                        userWithdrawal.processedDate = withdrawal.processedDate;
+                    }
+                    
+                    saveWithdrawals();
+                    saveUsers();
+                    
+                    alert('Transaction ID added!');
+                    loadWithdrawals();
+                }
+            }
+
+            window.banUser = function() {
+                const id = document.getElementById('banUID').value;
+                if (users[id]) {
+                    users[id].banned = true;
+                    saveUsers();
+                    alert(`User ${id} has been banned.`);
+                    loadUsersList();
+                } else {
+                    alert('User not found!');
+                }
+            }
+
+            window.unbanUser = function() {
+                const id = document.getElementById('banUID').value;
+                if (users[id]) {
+                    users[id].banned = false;
+                    saveUsers();
+                    alert(`User ${id} has been unbanned.`);
+                    loadUsersList();
+                } else {
+                    alert('User not found!');
+                }
+            }
+
+            window.addBalance = function() {
+                const id = document.getElementById('banUID').value;
+                const amount = prompt('Enter amount to add:');
+                if (users[id] && amount) {
+                    users[id].balance += parseFloat(amount);
+                    saveUsers();
+                    alert(`$${amount} added to user ${id}`);
+                    loadUsersList();
+                }
+            }
+
+            window.sendCustomMessage = async function() {
+                const userId = document.getElementById('customMsgUser').value;
+                const message = document.getElementById('customMessage').value;
+                
+                if (!message) {
+                    alert('Please enter a message!');
+                    return;
+                }
+                
+                alert('Message sending feature requires bot token setup in settings.');
+            }
+
+            window.changeAdminPassword = function() {
+                const newPass = document.getElementById('newPassword').value;
+                const confirmPass = document.getElementById('confirmPassword').value;
+                
+                if (!newPass || !confirmPass) {
+                    alert('Please fill in both password fields!');
+                    return;
+                }
+                
+                if (newPass !== confirmPass) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+                
+                adminPassword = newPass;
+                saveAdminPassword();
+                alert('Admin password changed successfully!');
+                
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            }
+
+            window.exportData = function() {
+                const data = {
+                    users,
+                    settings,
+                    withdrawals,
+                    adminPassword,
+                    exportDate: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `referral-system-backup-${new Date().getTime()}.json`;
+                a.click();
+            }
+
+            window.importData = function() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (confirm('This will replace all current data. Continue?')) {
+                                if (data.users) users = data.users;
+                                if (data.settings) settings = data.settings;
+                                if (data.withdrawals) withdrawals = data.withdrawals;
+                                if (data.adminPassword) adminPassword = data.adminPassword;
+                                
+                                saveUsers();
+                                saveSettings();
+                                saveWithdrawals();
+                                saveAdminPassword();
+                                
+                                alert('Data imported successfully!');
+                                location.reload();
+                            }
+                        } catch (error) {
+                            alert('Error importing data: ' + error.message);
+                        }
+                    };
+                    
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            }
+
+            window.resetSystem = function() {
+                if (confirm('⚠️ WARNING: This will delete ALL data! Are you sure?')) {
+                    if (prompt('Type "RESET" to confirm:') === 'RESET') {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        alert('System reset successfully!');
+                        location.reload();
+                    }
+                }
+            }
+
+            // ================= USER FUNCTIONS =================
+            window.requestWithdrawal = async function(userId) {
+                const user = users[userId];
+                const upi = document.getElementById('upi').value;
+                const amount = parseFloat(document.getElementById('amount').value);
+                const pin = document.getElementById('pin').value;
+                
+                // Validation
+                if (!user) {
+                    alert('User not found!');
+                    return;
+                }
+                
+                if (user.banned) {
+                    alert('Your account is banned!');
+                    return;
+                }
+                
+                if (!settings.withdrawalEnabled) {
+                    alert('Withdrawals are currently disabled by admin.');
+                    return;
+                }
+                
+                if (!upi) {
+                    alert('Please enter your UPI ID.');
+                    return;
+                }
+                
+                if (!amount || amount <= 0) {
+                    alert('Please enter a valid amount.');
+                    return;
+                }
+                
+                if (amount < settings.minWithdraw) {
+                    alert(`Minimum withdrawal amount is $${settings.minWithdraw}.`);
+                    return;
+                }
+                
+                if (user.refers < settings.minRefer) {
+                    alert(`You need at least ${settings.minRefer} referrals to withdraw.`);
+                    return;
+                }
+                
+                if (amount > user.balance) {
+                    alert('Insufficient balance.');
+                    return;
+                }
+                
+                if (!pin || pin.length !== 4) {
+                    alert('Please enter a valid 4-digit PIN.');
+                    return;
+                }
+                
+                // PIN Setup/Verification
+                if (!user.pin) {
+                    user.pin = pin;
+                } else if (user.pin !== pin) {
+                    alert('Incorrect PIN.');
+                    return;
+                }
+                
+                // Process withdrawal
+                user.balance -= amount;
+                user.upi = upi;
+                
+                const withdrawal = {
+                    uid: userId,
+                    upi,
+                    amount,
+                    date: new Date().toLocaleString(),
+                    status: 'Pending'
+                };
+                
+                if (!user.withdrawHistory) user.withdrawHistory = [];
+                user.withdrawHistory.push(withdrawal);
+                withdrawals.push(withdrawal);
+                
+                saveUsers();
+                saveWithdrawals();
+                
+                alert('Withdrawal request submitted successfully!');
+                renderUserDashboard(userId);
+            }
+        }
+    </script>
+</body>
+  </html>
